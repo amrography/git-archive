@@ -5,8 +5,6 @@ import sys
 import time
 import zipfile
 
-# join arguments to search them
-argus = " ".join(sys.argv)
 # script variables
 config_file_name = 'store.pckl'
 
@@ -39,7 +37,9 @@ class pickleh():
 # check config keys existence
 class initConfig():
     def __init__(self):
-        if argus.find('--flush') > -1:
+        args = self.args()
+
+        if args['--flush'] == True:
             pickleh.destroy()
             pickleh.create()
         
@@ -58,6 +58,18 @@ class initConfig():
             else:
                 pickleh.store(pickleh, 'last_commit_zipped', latest)
 
+    def args(self):
+        arguments = {
+            '--branch' : 'master',
+            '--flush' : False,
+        }
+
+        for arg in sys.argv[1:]:
+            name = arg.split('=')
+            arguments[name[0]] = name[1] if len(name) > 1 else True
+        
+        return arguments
+
 # main function
 class gitAmrography():
     def __init__(self):
@@ -68,12 +80,13 @@ class gitAmrography():
 
         c = initConfig()
         config = c.ret()
+        self.args = c.args()
         git_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
         repo = git.Repo(git_path)
         g = git.Git(git_path)
 
     def gitLatestCommit(self):
-        return str(repo.heads.master.commit.tree)
+        return str(repo.heads[self.args['--branch']].commit.tree)
         
     def gitDiff(self, branch1, branch2):
         format = '--name-only'
