@@ -43,11 +43,18 @@ class initConfig():
             pickleh.destroy()
             pickleh.create()
         
+        # check if branch_name is undefined
+        self.checkBranchName()
+
         # check config keys exist
         self.latestCommit()
         
     def ret(self):
         return pickleh.get(pickleh)
+
+    def checkBranchName(self):
+        if len(pickleh.attr(pickleh, 'branch_name')) < 1:
+            pickleh.store(pickleh, 'branch_name', 'master')
 
     def latestCommit(self):
         if len(pickleh.attr(pickleh, 'last_commit_zipped')) != 40:
@@ -67,7 +74,10 @@ class initConfig():
         for arg in sys.argv[1:]:
             name = arg.split('=')
             arguments[name[0]] = name[1] if len(name) > 1 else True
-        
+
+            if (name[0] == '--branch'):
+                pickleh.store(pickleh, 'branch_name', arguments['--branch'])
+
         return arguments
 
 # main function
@@ -77,16 +87,18 @@ class gitAmrography():
         global g
         global git_path
         global config
+        global branch_name
 
         c = initConfig()
         config = c.ret()
-        self.args = c.args()
+        branch_name = config['branch_name']
+
         git_path = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
         repo = git.Repo(git_path)
         g = git.Git(git_path)
 
     def gitLatestCommit(self):
-        return str(repo.heads[self.args['--branch']].commit.tree)
+        return str(repo.heads[branch_name].commit.tree)
         
     def gitDiff(self, branch1, branch2):
         format = '--name-only'
@@ -100,13 +112,17 @@ class gitAmrography():
     def package(self):
         latestcommit = self.gitLatestCommit()
         commits = self.gitDiff(latestcommit, config['last_commit_zipped'])
-        if len(commits) > 0:
+        commits_length = len(commits)
+        if commits_length > 0:
             self.packagePrepare(commits, latestcommit)
+            print('🥳 Package is ready')
+            print('⛓  Commits difference = ' + str(commits_length) )
         else:
-            print('No changes to package ✅')
+            print('✅ No changes to package')
+            print('🍴 Branch -> ' + branch_name)
     
     def packagePrepare(self, commits, latestcommit):
-        new_archive_dir = "archives/" + str(int(time.time()))
+        new_archive_dir = "archives/" + branch_name + "_" + str(int(time.time()))
         if not os.path.exists(new_archive_dir):
             os.makedirs(new_archive_dir)
         zipf = zipfile.ZipFile(new_archive_dir + '/archive.zip', 'w', zipfile.ZIP_DEFLATED)
