@@ -105,3 +105,4 @@ venv.bak/
 store.pckl
 store.pckl.example
 .DS_Store
+/git_archive/archives
