@@ -139,7 +139,7 @@ class gitAmrography():
             file = "../" + commit
             if os.path.isfile(file):
                 print('✅ File added ', commit)
-                fd.write("%s\n" % (commit))
+                fc.write("%s\n" % (commit))
                 ziph.write(file)
             else:
                 print('❌ File deleted ', commit)
