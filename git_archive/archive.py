@@ -116,7 +116,7 @@ class gitAmrography():
         if commits_length > 0:
             self.packagePrepare(commits, latestcommit)
             print('\n🥳 Package is ready')
-            print('⛓  Commits difference = ' + str(commits_length) )
+            print('⛓  Commits affected = ' + str(commits_length) )
         else:
             print('\n✅ No changes to package')
         print('🍴 Branch -> ' + branch_name)
@@ -128,7 +128,7 @@ class gitAmrography():
         zipf = zipfile.ZipFile(new_archive_dir + '/archive.zip', 'w', zipfile.ZIP_DEFLATED)
         self.packageAdd(commits, zipf, new_archive_dir)
         zipf.close()
-        pickleh.store(pickleh, 'last_commit_zipped', latestcommit)
+        # pickleh.store(pickleh, 'last_commit_zipped', latestcommit)
 
     def packageAdd(self, commits, ziph, archive_directory):
         deleted_file = archive_directory + "/deleted_files.txt"
