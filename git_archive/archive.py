@@ -115,27 +115,37 @@ class gitAmrography():
         commits_length = len(commits)
         if commits_length > 0:
             self.packagePrepare(commits, latestcommit)
-            print('🥳 Package is ready')
+            print('\n🥳 Package is ready')
             print('⛓  Commits difference = ' + str(commits_length) )
         else:
-            print('✅ No changes to package')
-            print('🍴 Branch -> ' + branch_name)
+            print('\n✅ No changes to package')
+        print('🍴 Branch -> ' + branch_name)
     
     def packagePrepare(self, commits, latestcommit):
         new_archive_dir = "archives/" + branch_name + "_" + str(int(time.time()))
         if not os.path.exists(new_archive_dir):
             os.makedirs(new_archive_dir)
         zipf = zipfile.ZipFile(new_archive_dir + '/archive.zip', 'w', zipfile.ZIP_DEFLATED)
-        self.packageAdd(commits, zipf)
+        self.packageAdd(commits, zipf, new_archive_dir)
         zipf.close()
         pickleh.store(pickleh, 'last_commit_zipped', latestcommit)
 
-    def packageAdd(self, commits, ziph):
+    def packageAdd(self, commits, ziph, archive_directory):
+        deleted_file = archive_directory + "/deleted_files.txt"
+        changed_file = archive_directory + "/changed_files.txt"
+        fd = open(deleted_file ,"w+")
+        fc = open(changed_file ,"w+")
         for commit in commits:
-            file = git_path + "/" + commit
             file = "../" + commit
             if os.path.isfile(file):
+                print('✅ File added ', commit)
+                fd.write("%s\n" % (commit))
                 ziph.write(file)
+            else:
+                print('❌ File deleted ', commit)
+                fd.write("%s\n" % (commit))
+        fd.close()
+        fc.close()
 
 
 archive = gitAmrography()
